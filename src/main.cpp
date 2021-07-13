@@ -21,7 +21,8 @@ void onTarget(char* cmd){commander.scalar(&motor.target, cmd);}
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
-
+  Serial.setTx(PA9);
+  Serial.setRx(PA10);
   Serial.begin(115200);
   Serial.println("Init begin...");
 
@@ -77,7 +78,7 @@ void loop() {
     motor.loopFOC();
 
     // velocity control loop function
-    motor.monitor();
+    //motor.monitor();
 
     motor.move(motor.shaft_angle_sp + 2);
 }
