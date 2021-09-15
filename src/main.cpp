@@ -12,7 +12,7 @@ StepperDriver2PWM driver = StepperDriver2PWM(COIL_A_PWM, COIL_A_DIR_1, COIL_A_DI
 // 200 steps/4 poles = 50 pole pairs
 StepperMotor motor = StepperMotor(50, 2.2);
 
-Commander commander = Commander(Serial);
+Commander commander = Commander(Serial,(char)'\n',true);
 void doMotor(char* cmd) { commander.motor(&motor, cmd); }
 void onPid(char* cmd){commander.pid(&motor.PID_velocity, cmd);}
 void onLpf(char* cmd){commander.lpf(&motor.LPF_velocity, cmd);}
@@ -30,7 +30,7 @@ void setup() {
 
   // power supply voltage [V]
   // driver.pwm_frequency = 50000;
-  driver.voltage_power_supply = 12;
+  driver.voltage_power_supply = 24;
   // Max DC voltage allowed - default voltage_power_supply
   // driver init
   driver.init();
@@ -48,14 +48,18 @@ void setup() {
   // set control loop type to be used
   motor.controller = MotionControlType::angle;
   motor.torque_controller = TorqueControlType::foc_current;
-
+  
   motor.useMonitoring(Serial);
 
   commander.add('M', doMotor, "motor");
-  commander.add('C',onPid,"PID vel");
-  commander.add('L',onLpf,"LPF vel");
-  commander.add('T',onTarget,"target vel");
-  // motor.monitor_downsample = 0;
+  
+    //disable vel commander monitor
+  //commander.add('C',onPid,"PID vel");
+  //commander.add('L',onLpf,"LPF vel");
+  //commander.add('T',onTarget,"target vel");
+  
+   motor.monitor_variables = _MON_TARGET|_MON_ANGLE;
+   motor.monitor_downsample = 100;
 
   motor.voltage_sensor_align = 9;
   motor.current_limit = 1800;
@@ -63,10 +67,12 @@ void setup() {
 
   // initialize motor
   motor.init();
-
+  
   // align encoder and start FOC
   motor.initFOC();
 
+  motor.target = 0 ;      //set target position
+  
   Serial.println("Done. RUNNING!");
   digitalWrite(LED_PIN, LOW);
 
@@ -79,6 +85,10 @@ void loop() {
 
     // velocity control loop function
     //motor.monitor();
+    
+    // Motion control function 
+    motor.move();
+    //motor.move(motor.shaft_angle_sp + 1);
 
-    motor.move(motor.shaft_angle_sp + 2);
+    //motor.monitor();
 }
