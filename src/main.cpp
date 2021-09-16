@@ -52,18 +52,25 @@ void setup() {
   motor.useMonitoring(Serial);
 
   commander.add('M', doMotor, "motor");
-  
+
     //disable vel commander monitor
   //commander.add('C',onPid,"PID vel");
   //commander.add('L',onLpf,"LPF vel");
   //commander.add('T',onTarget,"target vel");
   
    motor.monitor_variables = _MON_TARGET|_MON_ANGLE;
-   motor.monitor_downsample = 100;
+   motor.monitor_downsample = 1000;
 
   motor.voltage_sensor_align = 9;
   motor.current_limit = 1800;
   motor.velocity_limit = 1000;
+
+  //velocity PID controller parameters
+  //default P=0.5 I=10 D=0
+  motor.PID_velocity.P=0.2;
+  motor.PID_velocity.I=20;
+  motor.PID_velocity.D =0.001;
+  
 
   // initialize motor
   motor.init();
@@ -90,5 +97,5 @@ void loop() {
     motor.move();
     //motor.move(motor.shaft_angle_sp + 1);
 
-    //motor.monitor();
+    motor.monitor();
 }
