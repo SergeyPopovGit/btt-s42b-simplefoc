@@ -58,7 +58,7 @@ void setup() {
   //commander.add('L',onLpf,"LPF vel");
   //commander.add('T',onTarget,"target vel");
   
-   motor.monitor_variables = _MON_TARGET|_MON_ANGLE;
+   motor.monitor_variables = _MON_TARGET|_MON_ANGLE|_MON_VEL;
    motor.monitor_downsample = 1000;
 
   motor.voltage_sensor_align = 9;
@@ -91,7 +91,7 @@ void loop() {
     motor.loopFOC();
 
     // velocity control loop function
-    //motor.monitor();
+    //motor.monitor();M10
     
     // Motion control function 
     motor.move();

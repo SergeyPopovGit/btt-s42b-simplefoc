@@ -32,8 +32,11 @@ class TLE5012B: public Sensor{
         float getVelocity() override; 
     private:
         // total angle tracking variables
-        float TLE_full_rotation_offset; //!<number of full rotations made
-        uint16_t TLE_angle_data_prev; //!< angle in previous position calculation step
+        float full_rotation_offset; //!<number of full rotations made
+        uint16_t angle_data_prev; //!< angle in previous position calculation step
+        long velocity_calc_timestamp; //!< last velocity timestamp
+        float angle_prev ; //!< angle in previous velocity calculation step
+
 };
 
 #endif // __TLE5012B_H_
