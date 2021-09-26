@@ -43,11 +43,8 @@ void setup() {
   // link the motor to the driver
   motor.linkDriver(&driver);
 
-  motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
-
   // set control loop type to be used
-  motor.controller = MotionControlType::angle;
-  motor.torque_controller = TorqueControlType::foc_current;
+  motor.controller = MotionControlType::torque;
   
   motor.useMonitoring(Serial);
 
@@ -58,19 +55,29 @@ void setup() {
   //commander.add('L',onLpf,"LPF vel");
   //commander.add('T',onTarget,"target vel");
   
-   motor.monitor_variables = _MON_TARGET|_MON_ANGLE|_MON_VEL;
-   motor.monitor_downsample = 1000;
+   motor.monitor_variables = _MON_TARGET|_MON_VOLT_Q|_MON_VOLT_D|_MON_VEL|_MON_ANGLE;
+   motor.monitor_downsample = 2000;
 
   motor.voltage_sensor_align = 9;
-  motor.current_limit = 1800;
-  motor.velocity_limit = 1000;
+  motor.current_limit = 800;
+  motor.velocity_limit = 500;
 
-  //velocity PID controller parameters
-  //default P=0.5 I=10 D=0
-  motor.PID_velocity.P=0.2;
-  motor.PID_velocity.I=20;
-  motor.PID_velocity.D =0.001;
-  
+
+  // controller configuration based on the control type 
+  motor.PID_velocity.P = 0.2;
+  motor.PID_velocity.I = 0;
+  motor.PID_velocity.D = 0;
+  // default voltage_power_supply
+  motor.voltage_limit = 5;
+
+  // velocity low pass filtering time constant
+  motor.LPF_velocity.Tf = 0.01;
+
+  // angle loop controller
+  motor.P_angle.P = 20;
+  // angle loop velocity limit
+  motor.velocity_limit = 50;
+
 
   // initialize motor
   motor.init();
@@ -90,12 +97,11 @@ void loop() {
     // FOC algorithm function
     motor.loopFOC();
 
-    // velocity control loop function
-    //motor.monitor();M10
+    // monitor function
+    motor.monitor();
     
     // Motion control function 
-    motor.move();
+    //Not used for testing in command mode
+   // motor.move();
     //motor.move(motor.shaft_angle_sp + 1);
-
-    motor.monitor();
 }
