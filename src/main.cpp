@@ -102,6 +102,6 @@ void loop() {
     
     // Motion control function 
     //Not used for testing in command mode
-   // motor.move();
+    motor.move();
     //motor.move(motor.shaft_angle_sp + 1);
 }

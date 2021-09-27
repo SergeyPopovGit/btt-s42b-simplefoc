@@ -130,7 +130,9 @@ float TLE5012B::getAngle() {
   // tracking the number of rotations 
   // in order to expand angle range form [0,2PI] 
   // to basically infinity
-  int16_t d_angle = rawData - angle_data_prev; 
+    //int16_t d_angle = rawData - angle_data_prev; 
+    int16_t d_angle = rawData - angle_data_prev;
+    
   // save the current angle value for the next steps
   // in order to know if overflow happened
   angle_data_prev = rawData;
@@ -140,11 +142,13 @@ float TLE5012B::getAngle() {
   // in order to expand angle range form [0,2PI] 
   // to basically infinity
   // if overflow happened track it as full rotation
-  if(abs(d_angle) > (POW_2_15/2) ) full_rotation_offset += d_angle > 0 ? -_2PI : _2PI; 
+  //if(abs(d_angle) > (POW_2_15/2) ) full_rotation_offset += d_angle > 0 ? -_2PI : _2PI; 
+    if(abs(d_angle) > (POW_2_15/2) ) full_rotation += d_angle > 0 ? -1 : 1; 
 
   // return the full angle 
   // (number of full rotations)*2PI + current sensor angle 
-  return full_rotation_offset + (RADS_IN_CIRCLE / POW_2_15) * ((float) rawData);
+  //return full_rotation_offset + (RADS_IN_CIRCLE / POW_2_15) * ((float) rawData);
+  return (float)((full_rotation<<15)+rawData)*(RADS_IN_CIRCLE / (POW_2_15));
 }
 
 float TLE5012B::getVelocity(){
