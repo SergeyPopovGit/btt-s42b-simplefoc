@@ -18,8 +18,6 @@
 #define POW_2_15                    32768.0   // 2^15
 #define RADS_IN_CIRCLE              6.28319
 
-
-
 class TLE5012B: public Sensor{
     public:
         TLE5012B();
@@ -30,16 +28,7 @@ class TLE5012B: public Sensor{
         float getAngle() override;
         /**  get current angular velocity (rad/s) */
         float getVelocity() override; 
-    private:
-        // total angle tracking variables
-        //float full_rotation_offset; //!<number of full rotations made
-        long full_rotation; //!<number of full rotations made
-        uint16_t angle_data_prev; //!< angle in previous position calculation step
-        long velocity_calc_timestamp; //!< last velocity timestamp
-        float angle_prev ; //!< angle in previous velocity calculation step
-        
-    
-        
+
 };
 
 #endif // __TLE5012B_H_

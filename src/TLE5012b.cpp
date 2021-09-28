@@ -125,48 +125,69 @@ float TLE5012B::getAngle() {
 
     // Get the value of the angle register
     uint16_t rawData = readEncoderRegister(ENCODER_ANGLE_REG);
+
     // Delete the first bit, saving the last 15
     rawData = (rawData & (DELETE_BIT_15));
-  // tracking the number of rotations 
-  // in order to expand angle range form [0,2PI] 
-  // to basically infinity
-    //int16_t d_angle = rawData - angle_data_prev; 
-    int16_t d_angle = rawData - angle_data_prev;
-    
-  // save the current angle value for the next steps
-  // in order to know if overflow happened
-  angle_data_prev = rawData;
 
-          //Part from MagneticSensorSPI.cpp
-  // tracking the number of rotations 
-  // in order to expand angle range form [0,2PI] 
-  // to basically infinity
-  // if overflow happened track it as full rotation
-  //if(abs(d_angle) > (POW_2_15/2) ) full_rotation_offset += d_angle > 0 ? -_2PI : _2PI; 
-    if(abs(d_angle) > (POW_2_15/2) ) full_rotation += d_angle > 0 ? -1 : 1; 
-
-  // return the full angle 
-  // (number of full rotations)*2PI + current sensor angle 
-  //return full_rotation_offset + (RADS_IN_CIRCLE / POW_2_15) * ((float) rawData);
-  return (float)((full_rotation<<15)+rawData)*(RADS_IN_CIRCLE / (POW_2_15));
+    // Add the averaged value (equation from TLE5012 library)
+    return (RADS_IN_CIRCLE / POW_2_15) * ((float) rawData);
 }
 
 float TLE5012B::getVelocity(){
-    // calculate sample time
-  unsigned long now_us = _micros();
-  float Ts = (now_us - velocity_calc_timestamp)*1e-6;
-  // quick fix for strange cases (micros overflow)
-  if(Ts <= 0 || Ts > 0.5) Ts = 1e-3; 
+    // Prepare the variables to store data in
+	uint16_t rawData[5];
 
-  // current angle
-  float angle_c = getAngle();
-  // velocity calculation
-  float vel = (angle_c - angle_prev)/Ts;
+    // Read the encoder, modifying the array
+    readMultipleEncoderRegisters(ENCODER_SPEED_REG, rawData, sizeof(rawData) / sizeof(uint16_t));
 
-  // save variables for future pass
-  angle_prev = angle_c;
-  velocity_calc_timestamp = now_us;
-  return vel;
+	// Get raw speed reading
+	int16_t rawSpeed = rawData[0];
+	rawSpeed = rawSpeed & DELETE_BIT_15;
+
+	// If bit 14 is set, the value is negative
+	if (rawSpeed & CHECK_BIT_14) {
+		rawSpeed = rawSpeed - CHANGE_UINT_TO_INT_15;
+	}
+
+	// Get FIR_MD from bits 15 and 16 of register 0x06
+	uint16_t firMD = rawData[3] >> 14;
+
+    // get prediction mode
+    uint16_t intMode2Prediction = rawData[5];
+	if (intMode2Prediction & 0x0004)
+	{
+		intMode2Prediction = 3;
+	}else{
+		intMode2Prediction = 2;
+	}
+
+    uint16_t rawAngleRange = rawData[5];
+	rawAngleRange &= GET_BIT_14_4;
+	rawAngleRange >>= 4;
+	float angleRange = RADS_IN_CIRCLE * (POW_2_7 / (double) (rawAngleRange));
+
+	// Determine sensor update rate from FIR_MD
+	float firMDVal;
+    switch (firMD) {
+        case 0:
+            firMDVal = 21.3;
+            break;
+        case 1:
+            firMDVal = 42.7;
+            break;
+        case 2:
+            firMDVal = 85.3;
+            break;
+        case 3:
+            firMDVal = 170.6;
+            break;
+        default:
+            firMDVal = 0.0;
+            break;
+    }
+
+    // rad/s
+    return ((angleRange / POW_2_15) * ((float) rawSpeed)) / (((float) intMode2Prediction) * firMDVal * 0.000001);
 }
 
 // Reads the speed of the encoder in Radians a Second
