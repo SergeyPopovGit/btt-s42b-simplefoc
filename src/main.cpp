@@ -4,6 +4,7 @@
 
 #include "SimpleFOC.h"
 #include "TLE5012b.h"
+#include "LinearEncoder.h"
 
 TLE5012B sensor = TLE5012B();
 
@@ -14,9 +15,11 @@ StepperMotor motor = StepperMotor(50, 2.2);
 
 Commander commander = Commander(Serial,(char)'\n',true);
 void doMotor(char* cmd) { commander.motor(&motor, cmd); }
-void onPid(char* cmd){commander.pid(&motor.PID_velocity, cmd);}
-void onLpf(char* cmd){commander.lpf(&motor.LPF_velocity, cmd);}
-void onTarget(char* cmd){commander.scalar(&motor.target, cmd);}
+
+//Add incremental encoder 
+LinearEncoder scale = LinearEncoder(EXT_ENCODER_A, EXT_ENCODER_B, 250);
+    void doA(){scale.handleA();}
+    void doB(){scale.handleB();}
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -26,7 +29,13 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Init begin...");
 
+  //intit magnet encoder
   sensor.init();
+
+  //init optical scale hardware
+  scale.init();
+  // hardware interrupt enable
+  scale.enableInterrupts(doA, doB);
 
   // power supply voltage [V]
   // driver.pwm_frequency = 50000;
@@ -58,7 +67,7 @@ void setup() {
    motor.monitor_variables = _MON_TARGET|_MON_VOLT_Q|_MON_VOLT_D|_MON_VEL|_MON_ANGLE;
    motor.monitor_downsample = 2000;
 
-  motor.voltage_sensor_align = 9;
+  motor.voltage_sensor_align = 12;
   motor.current_limit = 800;
   motor.velocity_limit = 500;
 
@@ -104,4 +113,5 @@ void loop() {
     //Not used for testing in command mode
     motor.move();
     //motor.move(motor.shaft_angle_sp + 1);
+    
 }
