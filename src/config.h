@@ -106,9 +106,9 @@
 #define CAN_IN_PIN  PA11
 #define CAN_OUT_PIN PA12
 
-// External encoder on OLED connector pin6-+3.3V, pin 7-GND
-#define EXT_ENCODER_A PB15 //!<A Phase of external encoder (OLED_CS - 1 pin)
-#define EXT_ENCODER_B PB14 //!<B Phase of external encoder (OLED_DC - 2 pin)
+// External encoder on OLED connector pin6-+3.3V, pin7-GND
+#define EXT_ENCODER_A PB15 //!<A Phase of external encoder (OLED_D0-5pin)
+#define EXT_ENCODER_B PB14 //!<B Phase of external encoder (OLED_D1-6pin)
 
 
 #endif //__CONFIG_H_
