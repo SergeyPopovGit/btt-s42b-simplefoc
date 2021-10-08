@@ -4,22 +4,14 @@
 
 #include "SimpleFOC.h"
 #include "TLE5012b.h"
+#include "LinearAxis.h"
 #include "LinearEncoder.h"
 
-TLE5012B sensor = TLE5012B();
-
-StepperDriver2PWM driver = StepperDriver2PWM(COIL_A_PWM, COIL_A_DIR_1, COIL_A_DIR_2, COIL_B_PWM, COIL_B_DIR_1, COIL_B_DIR_2, NOT_SET, NOT_SET);
-
-// 200 steps/4 poles = 50 pole pairs
-StepperMotor motor = StepperMotor(50, 2.2);
-
-Commander commander = Commander(Serial,(char)'\n',true);
-void doMotor(char* cmd) { commander.motor(&motor, cmd); }
-
-//Add incremental encoder 
-LinearEncoder scale = LinearEncoder(EXT_ENCODER_A, EXT_ENCODER_B, 250);
-    void doA(){scale.handleA();}
-    void doB(){scale.handleB();}
+  //Create and save object linear axis
+LinearAxis axis = LinearAxis() ; //create LinearAxis object
+  //Create and save a commander object
+ Commander commander = Commander(Serial,(char)'\n',true); 
+  void doMotor(char* cmd) { commander.motor(axis.motor, cmd); };
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -29,72 +21,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Init begin...");
 
-  //intit magnet encoder
-  sensor.init();
 
-  //init optical scale hardware
-  scale.init();
-  // hardware interrupt enable
-  scale.enableInterrupts(doA, doB);
-
-  // power supply voltage [V]
-  // driver.pwm_frequency = 50000;
-  driver.voltage_power_supply = 24;
-  // Max DC voltage allowed - default voltage_power_supply
-  // driver init
-  driver.init();
-
-  // init sensor
-  // link the motor to the sensor
-  motor.linkSensor(&sensor);
-
-  // init driver
-  // link the motor to the driver
-  motor.linkDriver(&driver);
-
-  // set control loop type to be used
-  motor.controller = MotionControlType::torque;
-  
-  motor.useMonitoring(Serial);
 
   commander.add('M', doMotor, "motor");
-
-    //disable vel commander monitor
-  //commander.add('C',onPid,"PID vel");
-  //commander.add('L',onLpf,"LPF vel");
-  //commander.add('T',onTarget,"target vel");
-  
-   motor.monitor_variables = _MON_TARGET|_MON_VOLT_Q|_MON_VOLT_D|_MON_VEL|_MON_ANGLE;
-   motor.monitor_downsample = 2000;
-
-  motor.voltage_sensor_align = 12;
-  motor.current_limit = 800;
-  motor.velocity_limit = 500;
-
-
-  // controller configuration based on the control type 
-  motor.PID_velocity.P = 0.2;
-  motor.PID_velocity.I = 0;
-  motor.PID_velocity.D = 0;
-  // default voltage_power_supply
-  motor.voltage_limit = 5;
-
-  // velocity low pass filtering time constant
-  motor.LPF_velocity.Tf = 0.01;
-
-  // angle loop controller
-  motor.P_angle.P = 20;
-  // angle loop velocity limit
-  motor.velocity_limit = 50;
-
-
-  // initialize motor
-  motor.init();
-  
-  // align encoder and start FOC
-  motor.initFOC();
-
-  motor.target = 0 ;      //set target position
   
   Serial.println("Done. RUNNING!");
   digitalWrite(LED_PIN, LOW);
@@ -102,16 +31,10 @@ void setup() {
 }
 
 void loop() {
+    // run commander loop function
     commander.run();
-    // FOC algorithm function
-    motor.loopFOC();
 
-    // monitor function
-    motor.monitor();
-    
-    // Motion control function 
-    //Not used for testing in command mode
-    motor.move();
-    //motor.move(motor.shaft_angle_sp + 1);
-    
+    //run axis loop function
+    axis.loop();
+   
 }
