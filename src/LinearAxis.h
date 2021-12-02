@@ -7,6 +7,7 @@
 #define LinearAxis_h
 
 #include "Arduino.h"
+#include <EEPROM.h>
 #include "TLE5012b.h"
 #include "LinearEncoder.h"
 #include "common/base_classes/FOCMotor.h"
@@ -16,6 +17,7 @@
 #include "common/time_utils.h"
 #include "common/defaults.h"
 
+#define PARAMETERS_ADDRESS 0 //! location of parsmeters in EEPROM 
 /**
  Linear axis class
 */
@@ -28,7 +30,13 @@ class LinearAxis
       @param scale added linear encoder
     */
     LinearAxis();
-
+    
+      //scale direction variable value
+    enum ScaleDirection{
+              DIRECT    = 1,  //forward direction
+              INVERS    = -1, //invers direction
+              UNKNOWN = 0     //not yet known or invalid state
+          };
 
 
     /** 
@@ -38,6 +46,7 @@ class LinearAxis
     StepperMotor* motor; //!< pointer to motor added to axis
     LinearEncoder* scale; //<! pointer to linear optical scale added to axis
     StepperDriver2PWM* driver; //<! pointer to stepper driver
+    int scale_direction ; //<!scale direction value
 
     /**  LinearAxis init function */
   	void init() ;
@@ -61,12 +70,30 @@ class LinearAxis
      * This function doesn't need to be run upon each loop execution - depends of the use case
      */
     void move(float target = NOT_SET);
-
-  private:
+      //function for save current movement parameters in EEPROM
+ 
+    void SaveParams();  //<! Save curent movement parameters to EEPROM for axis object
+    char LoadParams();  //<! Load saved movement parameters from EEPROM 
+    void RecalibrateParams(); //<! recalibrate movement parameters and save to EEPROM
+      //EEPROM flag variant fot control of save and restore function
+    enum EepromFlag:int8_t{
+              VALID = 55, //valid eeprom value
+              RECALIBRATE_ASK = 22 //value for recalibrate request 
+            };
+        
     
+  private:
+      //set LinearAxis structure 
+    struct AxisParameters{
+      int scale_dir;
+      int motor_dir;
+      float zero_angle;
+      int8_t control_flag;
+    };
  
 
 };
+
 
 
 #endif

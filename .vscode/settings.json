@@ -1,0 +1,17 @@
+{
+    "cSpell.ignoreWords": [
+        "eeprom",
+        "flag",
+        "forvard"
+    ],
+    "files.associations": {
+        "random": "cpp",
+        "cmath": "cpp"
+    },
+    "markdownlint.config": {
+        "MD028": false,
+        "MD025": {
+            "front_matter_title": ""
+        }
+    }
+}

@@ -27,8 +27,13 @@ class TLE5012B: public Sensor{
         /** get current angle (rad) */
         float getAngle() override;
         /**  get current angular velocity (rad/s) */
-        float getVelocity() override; 
-
+        float getVelocity() override;
+        
+    private:
+        // previos value of angle
+        float angle_prev ; //previos raw data
+        // timestamp of previos data megament
+        long timestamp  ;  //<timestamp of previos angle megament
 };
 
 #endif // __TLE5012B_H_

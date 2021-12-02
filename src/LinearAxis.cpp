@@ -10,6 +10,7 @@ StepperDriver2PWM _driver = StepperDriver2PWM(COIL_A_PWM, COIL_A_DIR_1, COIL_A_D
 
 //Add incremental linear encoder 
   LinearEncoder _scale = LinearEncoder(EXT_ENCODER_A, EXT_ENCODER_B, 250);
+
     void doA(){_scale.handleA();};
     void doB(){_scale.handleB();};
 
@@ -32,7 +33,7 @@ void LinearAxis::init() {
   //Save incremental linear encoder pointer
    scale = &_scale;
 
-  //intit magnet encoder
+  //init magnet encoder
   sensor->init();
     //init optical scale hardware
   scale->init();
@@ -55,8 +56,9 @@ void LinearAxis::init() {
    // set control loop type to be used
   motor->controller = MotionControlType::torque;
   
+  motor->useMonitoring(Serial);
   /*
-    motor.useMonitoring(Serial);
+    
 
    //disable vel commander monitor
   //commander.add('C',onPid,"PID vel");
@@ -70,13 +72,21 @@ void LinearAxis::init() {
   motor->voltage_sensor_align = 12;
  
   // default voltage_power_supply
-  motor->voltage_limit = 5;
+  motor->voltage_limit = 10;
 
   // initialize motor
   motor->init();
   
-  // align encoder and start FOC
-  motor->initFOC();
+ 
+  //load parameters from EEPROM
+  if ( LoadParams() != EepromFlag::VALID){ // if no valid parameters align encoder and save parameters
+        motor->initFOC(); //align encoder 
+       SaveParams();   //save parameters
+      };
+
+  //++++ADD DEBUG 
+  RecalibrateParams() ;
+  //++++ADD DEBUG
 
   motor->target = 0 ;      //set target position
 } 
@@ -110,3 +120,33 @@ void LinearAxis::loop() {
 void LinearAxis::move(float new_target) {
   
 };
+  //Save curent movement parameters to EEPROM for axis objec
+void LinearAxis::SaveParams(){
+  AxisParameters cur_params ; //<!crate object for save parameters
+    //copy curent motor parameters to structure for save
+  cur_params.motor_dir = this->motor->sensor_direction;
+  cur_params.zero_angle = this->motor->zero_electric_angle;
+  cur_params.scale_dir = this->scale_direction; 
+  cur_params.control_flag = EepromFlag::VALID;
+  EEPROM.put(PARAMETERS_ADDRESS, cur_params);
+};
+  //Load saved movement parameters from EEPROM
+ char LinearAxis::LoadParams(){
+   AxisParameters params; //<!crate object for load parameters
+   EEPROM.get(PARAMETERS_ADDRESS, params); //load data to parameters structure
+      //if validation good then load parameters to object
+   if (params.control_flag == LinearAxis::EepromFlag::VALID){  
+        this->motor->sensor_direction = params.motor_dir;
+        this->motor->zero_electric_angle = params.zero_angle;
+        this->scale_direction = params.scale_dir;
+      };
+    return params.control_flag; //return value of read operation
+ };
+    //<! recalibrate movement parameters and save to EEPROM
+  void LinearAxis::RecalibrateParams(){
+          //clear main motor parametre for recalibrate
+        motor->zero_electric_angle = NOT_SET;
+        motor->sensor_direction = NOT_SET;
+          //calibrate parameters 
+        motor->initFOC(); //align encoder 
+  }; 
