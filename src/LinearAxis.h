@@ -8,6 +8,7 @@
 
 #include "Arduino.h"
 #include <EEPROM.h>
+#include "StepperMotor.h"
 #include "TLE5012b.h"
 #include "LinearEncoder.h"
 #include "common/base_classes/FOCMotor.h"
@@ -72,7 +73,7 @@ class LinearAxis
     void move(float target = NOT_SET);
       //function for save current movement parameters in EEPROM
  
-    void SaveParams();  //<! Save curent movement parameters to EEPROM for axis object
+    int SaveParams();  //<! Save curent movement parameters to EEPROM for axis object return error number
     char LoadParams();  //<! Load saved movement parameters from EEPROM 
     void RecalibrateParams(); //<! recalibrate movement parameters and save to EEPROM
       //EEPROM flag variant fot control of save and restore function
@@ -88,9 +89,9 @@ class LinearAxis
       int scale_dir;
       int motor_dir;
       float zero_angle;
+      float ctable[_POLE_PAIRS];
       int8_t control_flag;
     };
- 
 
 };
 

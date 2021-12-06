@@ -80,12 +80,10 @@ void LinearAxis::init() {
  
   //load parameters from EEPROM
   if ( LoadParams() != EepromFlag::VALID){ // if no valid parameters align encoder and save parameters
-        motor->initFOC(); //align encoder 
-       SaveParams();   //save parameters
-      };
+     RecalibrateParams() ;
+   };
 
-  //++++ADD DEBUG 
-  RecalibrateParams() ;
+
   //++++ADD DEBUG
 
   motor->target = 0 ;      //set target position
@@ -120,33 +118,79 @@ void LinearAxis::loop() {
 void LinearAxis::move(float new_target) {
   
 };
+
+ int saveArrayE (int address, uint8_t* pData, int len){
+  // Old version work without erase eeprom
+  int i=0;
+   for( ;i < len; i++){
+    EEPROM[address+i]=pData[i];
+  };
+  //
+  return i; 
+ };
+
+ int loadArrayE (int address, uint8_t* pData, int len){
+  // Old version work without erase eeprom
+  int i=0;
+   for( ;i < len; i++){
+    pData[i]=EEPROM[address+i];
+  };
+  //
+  return i; 
+ };
+
   //Save curent movement parameters to EEPROM for axis objec
-void LinearAxis::SaveParams(){
+int LinearAxis::SaveParams(){
   AxisParameters cur_params ; //<!crate object for save parameters
-    //copy curent motor parameters to structure for save
+ 
+  int cur_address = PARAMETERS_ADDRESS ; //address of curent variable
+  uint8_t end[]="end";
+  uint8_t tableName[] = "CalibrationTable=";
+  uint8_t paramName[] = "Parameter=";
+  //cur_address +=saveArrayE(cur_address,paramName,sizeof(paramName));
+
   cur_params.motor_dir = this->motor->sensor_direction;
   cur_params.zero_angle = this->motor->zero_electric_angle;
-  cur_params.scale_dir = this->scale_direction; 
+  cur_params.scale_dir = this->scale_direction;
+  for (int i=0; i < _POLE_PAIRS ; i++){
+    cur_params.ctable[i] = this->motor->correctionTable[i];
+    };
   cur_params.control_flag = EepromFlag::VALID;
-  EEPROM.put(PARAMETERS_ADDRESS, cur_params);
+  cur_address+=saveArrayE(cur_address,(uint8_t*)&cur_params,sizeof(cur_params));
+  
+  
+  //cur_address +=saveArrayE(cur_address,tableName,sizeof(tableName));
+  //cur_address +=saveArrayE(cur_address, (uint8_t*) this->motor->correctionTable,sizeof(this->motor->correctionTable));
+  //cur_address +=saveArrayE(cur_address,end,sizeof(end));
+  return cur_address; 
 };
+  
   //Load saved movement parameters from EEPROM
- char LinearAxis::LoadParams(){
+char LinearAxis::LoadParams(){
    AxisParameters params; //<!crate object for load parameters
-   EEPROM.get(PARAMETERS_ADDRESS, params); //load data to parameters structure
+
+   unsigned int  cur_address = PARAMETERS_ADDRESS ; //address of curent variable 
+   
+   loadArrayE(cur_address, (uint8_t*)&params, sizeof(params)); //load data to parameters structure
       //if validation good then load parameters to object
-   if (params.control_flag == LinearAxis::EepromFlag::VALID){  
+   if (params.control_flag == EepromFlag::VALID){  
         this->motor->sensor_direction = params.motor_dir;
         this->motor->zero_electric_angle = params.zero_angle;
         this->scale_direction = params.scale_dir;
+        for (int i= 0 ; i < _POLE_PAIRS ;  i++){
+          this->motor->correctionTable[i] = params.ctable[i] ;  //save curent value
+        };    
       };
+
     return params.control_flag; //return value of read operation
  };
+    
     //<! recalibrate movement parameters and save to EEPROM
   void LinearAxis::RecalibrateParams(){
           //clear main motor parametre for recalibrate
         motor->zero_electric_angle = NOT_SET;
         motor->sensor_direction = NOT_SET;
           //calibrate parameters 
-        motor->initFOC(); //align encoder 
+        motor->initFOC(); //align encoder
+        SaveParams(); 
   }; 

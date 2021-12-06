@@ -19,8 +19,8 @@ LinearAxis axis = LinearAxis() ; //create LinearAxis object
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
-  Serial.setTx(PA9);
-  Serial.setRx(PA10);
+  Serial.setTx(PA2);  //Set TX port of UART2
+  Serial.setRx(PA3);  //Set RX port of UART2
   Serial.begin(115200);
   Serial.println("Init begin...");
 

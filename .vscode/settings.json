@@ -6,7 +6,12 @@
     ],
     "files.associations": {
         "random": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "*.tcc": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp"
     },
     "markdownlint.config": {
         "MD028": false,
