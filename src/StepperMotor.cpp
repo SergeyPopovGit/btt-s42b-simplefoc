@@ -470,7 +470,7 @@ float StepperMotor::angleOpenloop(float target_angle){
      
       //find the null encoder point
     i=0;
-    while ( getAverageAngle() >= (_2PI/200)) {
+    while ( getAverageAngle() >= (_2PI/(_POLE_PAIRS*4))) {
         angle = _PI_2 * i ;
         setPhaseVoltage(voltage_sensor_align, 0,  angle);
         _delay(100);

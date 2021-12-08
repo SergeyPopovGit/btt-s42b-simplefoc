@@ -10,7 +10,7 @@
 #include <EEPROM.h>
 #include "StepperMotor.h"
 #include "TLE5012b.h"
-#include "LinearEncoder.h"
+#include "LinearEncoderHwT.h"
 #include "common/base_classes/FOCMotor.h"
 #include "common/base_classes/StepperDriver.h"
 #include "common/base_classes/Sensor.h"
@@ -19,6 +19,7 @@
 #include "common/defaults.h"
 
 #define PARAMETERS_ADDRESS 0 //! location of parsmeters in EEPROM 
+
 /**
  Linear axis class
 */
@@ -45,7 +46,8 @@ class LinearAxis
     */
     TLE5012B* sensor ; //!<declare rotate sensor on stepmotor
     StepperMotor* motor; //!< pointer to motor added to axis
-    LinearEncoder* scale; //<! pointer to linear optical scale added to axis
+    //LinearEncoder* scale; //<! pointer to linear optical scale added to axis
+    LinearEncoderHwT* scale; //<! pointer to linear optical scale added to axis
     StepperDriver2PWM* driver; //<! pointer to stepper driver
     int scale_direction ; //<!scale direction value
 

@@ -7,12 +7,8 @@ StepperMotor _motor = StepperMotor(50) ;
 TLE5012B _sensor = TLE5012B(); 
 //Create and save a stepperdrive object
 StepperDriver2PWM _driver = StepperDriver2PWM(COIL_A_PWM, COIL_A_DIR_1, COIL_A_DIR_2, COIL_B_PWM, COIL_B_DIR_1, COIL_B_DIR_2, NOT_SET, NOT_SET);
-
-//Add incremental linear encoder 
-  LinearEncoder _scale = LinearEncoder(EXT_ENCODER_A, EXT_ENCODER_B, 250);
-
-    void doA(){_scale.handleA();};
-    void doB(){_scale.handleB();};
+//Create and save a linear encoder object
+LinearEncoderHwT _scale = LinearEncoderHwT(250);
 
   //Create method of LinearAxis object
 LinearAxis::LinearAxis()
@@ -37,9 +33,7 @@ void LinearAxis::init() {
   sensor->init();
     //init optical scale hardware
   scale->init();
-     // hardware interrupt enable
-  scale->enableInterrupts(doA, doB);
-
+  
     // power supply voltage [V]
   // driver.pwm_frequency = 50000;
   driver->voltage_power_supply = 24;
