@@ -8,7 +8,8 @@ TLE5012B _sensor = TLE5012B();
 //Create and save a stepperdrive object
 StepperDriver2PWM _driver = StepperDriver2PWM(COIL_A_PWM, COIL_A_DIR_1, COIL_A_DIR_2, COIL_B_PWM, COIL_B_DIR_1, COIL_B_DIR_2, NOT_SET, NOT_SET);
 //Create and save a linear encoder object
-LinearEncoderHwT _scale = LinearEncoderHwT(250);
+LinearEncoderHwT _scale = LinearEncoderHwT();
+PIDController  PID_axis(2,0,0,0,MAX_AXIS_TORQUE) ;
 
   //Create method of LinearAxis object
 LinearAxis::LinearAxis()
@@ -99,11 +100,18 @@ void LinearAxis::enable()
 // Iterative function looping LinearAxis algorithm
 // The faster it can be run the better
 void LinearAxis::loop() {
+  //Update scale position
+    scale->loop();
  // FOC algorithm function
     motor->loopFOC();
+ // Axis position PID controller
+  //calculate torque value by curent error value
+    error = targ_position - scale->cur_position; //calculate position error
+    torque = PID_axis(error);   //process error value to motor torque value
+    motor->target = torque ;  // copy torgur value to motor target
  // Motion control function 
  // Not used for testing in command mode
-    motor->move(); 
+    motor->move();  //execute foc algorithm of motor
 }
 
 // Iterative function running outer loop of the LinearAxis algorithm

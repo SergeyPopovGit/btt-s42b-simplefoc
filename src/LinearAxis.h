@@ -19,6 +19,7 @@
 #include "common/defaults.h"
 
 #define PARAMETERS_ADDRESS 0 //! location of parsmeters in EEPROM 
+#define MAX_AXIS_TORQUE 8  //! maximum value of torgue 
 
 /**
  Linear axis class
@@ -32,15 +33,12 @@ class LinearAxis
       @param scale added linear encoder
     */
     LinearAxis();
-    
       //scale direction variable value
     enum ScaleDirection{
               DIRECT    = 1,  //forward direction
               INVERS    = -1, //invers direction
               UNKNOWN = 0     //not yet known or invalid state
           };
-
-
     /** 
       * LinearAxis class object
     */
@@ -49,8 +47,14 @@ class LinearAxis
     //LinearEncoder* scale; //<! pointer to linear optical scale added to axis
     LinearEncoderHwT* scale; //<! pointer to linear optical scale added to axis
     StepperDriver2PWM* driver; //<! pointer to stepper driver
-    int scale_direction ; //<!scale direction value
+    
+    PIDController  PID_axis{800,30000,0,0,MAX_AXIS_TORQUE}; //<! PID controller of axis position  
 
+    int scale_direction ; //<!scale direction value
+    float error = 0 ; //!<error value
+    float targ_position = 0 ; //<! target position of axis
+    float torque = 0; //torgue value
+    
     /**  LinearAxis init function */
   	void init() ;
     /** LinearAxis disable function */
@@ -61,7 +65,7 @@ class LinearAxis
 
     /**
      * Function running LinearAxis control algorithm in real-time
-     * it calculates the LinearEncoder position and form torgue (voltage ) on stepper motor
+     * it calculates the LinearEncoder position and form torque (voltage ) on stepper motor
      */ 
     void loop();
     

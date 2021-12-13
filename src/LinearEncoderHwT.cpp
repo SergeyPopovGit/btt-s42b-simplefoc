@@ -1,5 +1,8 @@
 #include "LinearEncoderHwT.h"
 
+#define HW_T_PERIOD 65535 
+#define PULSE_PER_MM 1000
+
 /*Add incremental linear encoder  block */
 
 //HardwareTimer _hwLineEncoder = HardwareTimer(encoderTIM);
@@ -30,7 +33,7 @@ void Encoder_Config(void)
   htim1.Instance = ENCODER_TIM;
   htim1.Init.Prescaler = 0;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65535;
+  htim1.Init.Period = HW_T_PERIOD;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   sConfig.EncoderMode = TIM_ENCODERMODE_TI12; //
@@ -116,10 +119,8 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* htim_encoder)
  * Declare LinearEncoderHwT block 
  * create and initialize linear encoder object
  */
-LinearEncoderHwT::LinearEncoderHwT(long _ppmm){
-  cpmm = _ppmm;
+LinearEncoderHwT::LinearEncoderHwT(){
   // velocity calculation variables
-  prev_pulse_counter = 0;
   prev_timestamp_us = micros();
 }
 
@@ -127,13 +128,21 @@ LinearEncoderHwT::LinearEncoderHwT(long _ppmm){
 	 get measured position
 */
 float LinearEncoderHwT::getPosition(){
-  return  (pulse_counter) / ((float)cpmm);
+    int32_t diff_encoder ;  //create diff encoder
+    int32_t cur_encoder = Encoder_Read();  //read curent value
+    diff_encoder = cur_encoder-prev_encoder; //difference beetwin curenv and previos encoder value
+    prev_encoder = cur_encoder;  //save previos encoder value
+    pulse_counter += diff_encoder ; //add pulse counter
+    if (diff_encoder > HW_T_PERIOD/2){pulse_counter -= HW_T_PERIOD;}; //up overload counter correction
+    if (diff_encoder < -HW_T_PERIOD/2){pulse_counter += HW_T_PERIOD;}; //down overload counter correction
+    return  direction*(pulse_counter) / ((float) PULSE_PER_MM );
 }
 
 /*
   Linear velocity calculation
   function using mixed time and frequency measurement technique
 */
+/*
 float LinearEncoderHwT::getVelocity(){
   // timestamp
   long timestamp_us = micros();
@@ -151,6 +160,7 @@ float LinearEncoderHwT::getVelocity(){
   // velocity calculation
   return  (float) cpmm* dN / Ts ; 
 }
+*/
 
 // encoder initialisation of the hardware pins
 // and calculation variables
@@ -158,10 +168,11 @@ void LinearEncoderHwT::init(void){
   Encoder_Config(); // Config timer as hardware encoder
   HAL_TIM_Encoder_MspInit(&htim1);  //On Clock source and GPIO for input
   Encoder_Init() ;  //Start timer
+  cur_position = 0; //init current position 
+  direction = 1;
 }
 
 //Loop function for main loop procedure
 void LinearEncoderHwT::loop(){
-    pulse_counter =  Encoder_Read();  //read conter value
-    
+  cur_position = getPosition() ;  //get curent position
 }
