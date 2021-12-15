@@ -40,11 +40,11 @@ void Encoder_Config(void)
   sConfig.IC1Polarity = TIM_ENCODERINPUTPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;     // Capture performed each time an edge is detected on the capture input
-  sConfig.IC1Filter = 0;
+  sConfig.IC1Filter = 16;
   sConfig.IC2Polarity = TIM_ENCODERINPUTPOLARITY_RISING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;     // Capture performed each time an edge is detected on the capture input
-  sConfig.IC2Filter = 0;
+  sConfig.IC2Filter = 16;
   
   HAL_TIM_Encoder_Init(&htim1, &sConfig);
   

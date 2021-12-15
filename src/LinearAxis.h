@@ -19,7 +19,7 @@
 #include "common/defaults.h"
 
 #define PARAMETERS_ADDRESS 0 //! location of parsmeters in EEPROM 
-#define MAX_AXIS_TORQUE 8  //! maximum value of torgue 
+#define MAX_AXIS_TORQUE 12  //! maximum value of torgue 
 
 /**
  Linear axis class
@@ -48,7 +48,7 @@ class LinearAxis
     LinearEncoderHwT* scale; //<! pointer to linear optical scale added to axis
     StepperDriver2PWM* driver; //<! pointer to stepper driver
     
-    PIDController  PID_axis{800,30000,0,0,MAX_AXIS_TORQUE}; //<! PID controller of axis position  
+    PIDController  PID_axis{800,1000,0,0,MAX_AXIS_TORQUE}; //<! PID controller of axis position  
 
     int scale_direction ; //<!scale direction value
     float error = 0 ; //!<error value
