@@ -9,7 +9,7 @@ TLE5012B _sensor = TLE5012B();
 StepperDriver2PWM _driver = StepperDriver2PWM(COIL_A_PWM, COIL_A_DIR_1, COIL_A_DIR_2, COIL_B_PWM, COIL_B_DIR_1, COIL_B_DIR_2, NOT_SET, NOT_SET);
 //Create and save a linear encoder object
 LinearEncoderHwT _scale = LinearEncoderHwT();
-PIDController  PID_axis(500,1000,0,0,MAX_AXIS_TORQUE) ;
+PIDController  PID_axis(450,10000,0,0,MAX_AXIS_TORQUE) ;
 
   //Create method of LinearAxis object
 LinearAxis::LinearAxis()
@@ -74,6 +74,7 @@ void LinearAxis::init() {
   
  
   //load parameters from EEPROM
+  //if you need recalibrate  erase 127 sector of internal EEPROM  by ST-LINK programer or other method
   if ( LoadParams() != EepromFlag::VALID){ // if no valid parameters align encoder and save parameters
      RecalibrateParams() ;
    };

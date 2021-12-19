@@ -48,7 +48,7 @@ class LinearAxis
     LinearEncoderHwT* scale; //<! pointer to linear optical scale added to axis
     StepperDriver2PWM* driver; //<! pointer to stepper driver
     
-    PIDController  PID_axis{800,1000,0,0,MAX_AXIS_TORQUE}; //<! PID controller of axis position  
+    PIDController  PID_axis{450,2500,0,0,MAX_AXIS_TORQUE}; //<! PID controller of axis position  
 
     int scale_direction ; //<!scale direction value
     float error = 0 ; //!<error value

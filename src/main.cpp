@@ -6,10 +6,12 @@
 #include "SimpleFOC.h"
 #include "TLE5012b.h"
 #include "LinearAxis.h"
-#include "LinearEncoder.h"
+#include "Manual_control.h"
+//#include "LinearEncoder.h"
 
   //Create and save object linear axis
 LinearAxis axis = LinearAxis() ; //create LinearAxis object
+ManualControl _mControl = ManualControl() ; //Create handle of encoder hw timer
   //Create and save a commander object
  Commander commander = Commander(Serial,(char)'\n',true); 
   void doMotor(char* cmd) { commander.motor(axis.motor, cmd); };
@@ -38,6 +40,9 @@ void setup() {
   //initiate axis object and variable
   axis.init();
 
+   //init manual control  
+   //set pointer of value for manual control 
+  _mControl.init(&axis.targ_position);
 }
 
 void loop() {
@@ -46,5 +51,6 @@ void loop() {
 
     //run axis loop function
     axis.loop();
+    _mControl.loop();
    
 }

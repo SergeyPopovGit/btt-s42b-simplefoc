@@ -82,6 +82,8 @@ class StepperMotor: public FOCMotor
     
       //function for precize calibration procedure
     float getAverageAngle(float start_angle);  //get average angle value of sensor
+        //fill correction table by magament pole coordinate
+        //for recalabration proc need erace 127 sector of internal EEPROM 
     void  fillCorrectionTable();  //fill correction table 
     /*
     * compensate deviation of zero electrical angle
