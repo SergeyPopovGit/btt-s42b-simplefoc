@@ -161,6 +161,10 @@ int StepperMotor::alignSensor() {
       if(monitor_port) monitor_port->println(F("MOT: sensor_direction==CW"));
       sensor_direction = Direction::CW;
     }
+    //!!!set sensor direction to CW in any case 
+    //solving problem by real pole coord table
+     // sensor_direction = Direction::CW;
+
     // check pole pair number 
     if(monitor_port) monitor_port->print(F("MOT: PP check: "));
     float moved =  fabs(mid_angle - end_angle);
@@ -464,14 +468,14 @@ float StepperMotor::angleOpenloop(float target_angle){
     int i = 0   ; //value of motor step 
     int k = 0   ; //index of calibration table
       //do back half step
-      angle = _PI; 
+      angle = sensor_direction*_PI; 
       setPhaseVoltage(voltage_sensor_align, 0,  angle);
       _delay(500);
      
       //find the null encoder point
     i=0;
     while ( getAverageAngle() >= (_2PI/(_POLE_PAIRS*4))) {
-        angle = _PI_2 * i ;
+        angle = sensor_direction*_PI_2 * i ;
         setPhaseVoltage(voltage_sensor_align, 0,  angle);
         _delay(100);
         dbg_print(i,getAverageAngle()); //print debug information
@@ -483,7 +487,7 @@ float StepperMotor::angleOpenloop(float target_angle){
     i = 0 ;
     k = 0 ; 
     while ( i < pole_pairs*4 ) {
-        angle = _PI_2 * i ;
+        angle = sensor_direction* _PI_2 * i ;
         setPhaseVoltage(voltage_sensor_align, 0,  angle);
         _delay(250);
             //collect measured angle value
@@ -496,7 +500,7 @@ float StepperMotor::angleOpenloop(float target_angle){
       };
       
       //
-      angle = _PI_2 * i;
+      angle = sensor_direction*_PI_2 * i;
       setPhaseVoltage(voltage_sensor_align, 0,  angle);
       _delay(250);
       //---------------------------
@@ -505,7 +509,7 @@ float StepperMotor::angleOpenloop(float target_angle){
       i--;  //
       k--;  
     while ( i >= 0  ) {
-        angle = _PI_2 * i ;
+        angle = sensor_direction*_PI_2 * i ;
         setPhaseVoltage(voltage_sensor_align, 0,  angle);
         _delay(250);
             //continue averaging angle
