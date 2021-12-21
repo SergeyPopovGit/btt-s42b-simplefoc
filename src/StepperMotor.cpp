@@ -258,12 +258,12 @@ void StepperMotor::loopFOC() {
   // if open-loop do nothing
   if( controller==MotionControlType::angle_openloop || controller==MotionControlType::velocity_openloop ) return;
   // shaft angle 
-  shaft_angle = shaftAngle();
+  shaft_angle = sensor_direction*shaftAngle();
   
   // if disabled do nothing
   if(!enabled) return; 
   
-  electrical_angle = getElectricalAngle(shaft_angle)+_PI_2;
+  electrical_angle = sensor_direction*(getElectricalAngle(shaft_angle)+_PI_2);
    //dbg part
     //electrical_angle = dbg_pole_angle+_PI_2;//debug set electrical angle value
     //voltage.q = dbg_voltage_q ; //debug set voltage value
@@ -473,7 +473,7 @@ float StepperMotor::angleOpenloop(float target_angle){
       _delay(500);
      
       //find the null encoder point
-    i=0;
+    i=1;
     while ( getAverageAngle() >= (_2PI/(_POLE_PAIRS*4))) {
         angle = sensor_direction*_PI_2 * i ;
         setPhaseVoltage(voltage_sensor_align, 0,  angle);
@@ -484,9 +484,9 @@ float StepperMotor::angleOpenloop(float target_angle){
 
       //do forward rotate in full step mode
       //rotate by PI/2 step size
-    i = 0 ;
+    i = 1;
     k = 0 ; 
-    while ( i < pole_pairs*4 ) {
+    while ( i <= pole_pairs*4 ) {
         angle = sensor_direction* _PI_2 * i ;
         setPhaseVoltage(voltage_sensor_align, 0,  angle);
         _delay(250);
@@ -508,7 +508,7 @@ float StepperMotor::angleOpenloop(float target_angle){
       //rotate by PI/2 step size
       i--;  //
       k--;  
-    while ( i >= 0  ) {
+    while ( i >= 1  ) {
         angle = sensor_direction*_PI_2 * i ;
         setPhaseVoltage(voltage_sensor_align, 0,  angle);
         _delay(250);
