@@ -15,8 +15,9 @@
 * */
 #define MANUAL_CONTROL_PERIOD    250000
 #define MANUAL_CONTROL_GPIO_PORT     GPIOB
-#define INC_PIN                      GPIO_PIN_0                    
-#define DEC_PIN                      GPIO_PIN_1  
+#define MANUAL_MODE_PIN                     GPIO_PIN_10
+#define INC_PIN                      GPIO_PIN_1                    
+#define DEC_PIN                      GPIO_PIN_0  
 
 class ManualControl{
  public:

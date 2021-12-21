@@ -50,9 +50,9 @@ void ManualControl::loop(){
     //if + button push
   if(!HAL_GPIO_ReadPin(MANUAL_CONTROL_GPIO_PORT, INC_PIN) ){
       upTime++  ; //incrace upTime counter
-      if(upTime>0) cur_increment = 4  ; //set increment to 
-      if(upTime>5) cur_increment = 6  ; //set increment to
-      if(upTime>10) cur_increment = 9  ; //set increment to
+      if(upTime>0) cur_increment = 6  ; //set increment to 
+      if(upTime>5) cur_increment = 8  ; //set increment to
+      if(upTime>10) cur_increment = 10  ; //set increment to
       //if(upTime>15) cur_increment = 10  ; //set increment to
     }else{
       upTime = 0; //reset counter value  
@@ -60,9 +60,9 @@ void ManualControl::loop(){
     //if - button push
   if(!HAL_GPIO_ReadPin(MANUAL_CONTROL_GPIO_PORT, DEC_PIN) ){
       downTime++  ; //incrace upTime counter
-      if(downTime>0) cur_increment = -4  ; //set increment to 
-      if(downTime>5) cur_increment = -5  ; //set increment to
-      if(downTime>10) cur_increment = -9  ; //set increment to
+      if(downTime>0) cur_increment = -6  ; //set increment to 
+      if(downTime>5) cur_increment = -8  ; //set increment to
+      if(downTime>10) cur_increment = -10  ; //set increment to
       //if(downTime>15) cur_increment = -10  ; //set increment to
     }else{
       downTime = 0; //reset counter value
