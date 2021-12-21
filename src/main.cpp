@@ -42,7 +42,7 @@ void setup() {
 
    //init manual control  
    //set pointer of value for manual control 
-  _mControl.init(&axis.targ_position);
+  _mControl.init(&axis.motor->target);
 }
 
 void loop() {

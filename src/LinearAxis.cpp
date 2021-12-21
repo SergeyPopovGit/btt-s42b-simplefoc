@@ -109,7 +109,11 @@ void LinearAxis::loop() {
   //calculate torque value by curent error value
     error = targ_position - scale->cur_position; //calculate position error
     torque = PID_axis(error);   //process error value to motor torque value
-    motor->target = torque ;  // copy torgur value to motor target
+    
+    //!!!!!!!!!!!!!!!!!!!!!!!!
+    //motor->target = torque ;  // copy torgur value to motor target
+    //!!!!!!!!!!!!!!!!!!!!!!!!
+
  // Motion control function 
  // Not used for testing in command mode
     motor->move();  //execute foc algorithm of motor
