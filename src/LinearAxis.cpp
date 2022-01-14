@@ -51,7 +51,7 @@ void LinearAxis::init() {
    // set control loop type to be used
   motor->controller = MotionControlType::torque;
   
-  motor->useMonitoring(Serial);
+  //motor->useMonitoring(Serial);
   /*
     
 
@@ -109,14 +109,12 @@ void LinearAxis::loop() {
   //calculate torque value by curent error value
     error = targ_position - scale->cur_position; //calculate position error
     torque = PID_axis(error);   //process error value to motor torque value
-    
-    //!!!!!!!!!!!!!!!!!!!!!!!!
-    //motor->target = torque ;  // copy torgur value to motor target
-    //!!!!!!!!!!!!!!!!!!!!!!!!
-
+    motor->voltage.q = torque ;  // copy torgur value to motor target
+ //Manual control
+  
  // Motion control function 
  // Not used for testing in command mode
-    motor->move();  //execute foc algorithm of motor
+   // motor->move();  //execute foc algorithm of motor
 }
 
 // Iterative function running outer loop of the LinearAxis algorithm

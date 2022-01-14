@@ -73,6 +73,10 @@
 #define DIP_MICRO_1             PB10
 #define DIP_MICRO_2             PB11
 
+//Dip switch alternative function
+    //switch PID control by external encoder default - use internal encoder
+#define DIP_EXT_ENCODER         DIP_MICRO_1 
+
 // LED pin
 #define LED_PIN PC13
 
@@ -98,17 +102,27 @@
 #define ENCODER_MOSI PIN_SPI_MOSI
 
 // Stepping interface
-#define STEP_PIN      PA1 // ! according to the previous files, but this is the same as the dir pin
-#define ENABLE_PIN    PA2
-#define DIRECTION_PIN PA1
+#define STEPPING_INTERFACE_CONFIGURED
+#define HW_T_MAXVALUE 0xFFFF 
+#define STEP_COUNT_TIMER_INSTANCE TIM2
+#define STEP_COUNT_TIMER_CLK_ENABLE __TIM2_CLK_ENABLE() //Enable timer clock of step counter
+#define STEP_COUNT_CLK_ENABLE  __GPIOA_CLK_ENABLE() //Enable GPIO clock of step count  
+#define STEP_COUNT_PORT GPIOA    // Step count port A 
+#define STEP_PIN        GPIO_PIN_1 // old version PA1 // ! according to the previous files, but this is the same as the dir pin
+#define ENABLE_PIN      GPIO_PIN_2 // old version PA2
+#define DIRECTION_PIN   GPIO_PIN_0 // old version PA0
 
 // CAN bus pins
 #define CAN_IN_PIN  PA11
 #define CAN_OUT_PIN PA12
 
-// External encoder on OLED connector pin6-+3.3V, pin7-GND
-#define EXT_ENCODER_A PB15 //!<A Phase of external encoder (OLED_D0-5pin)
-#define EXT_ENCODER_B PB14 //!<B Phase of external encoder (OLED_D1-6pin)
+/* External hardware encoder on TIM1
+* Placed on OLED P7 and DEBUG P4 connectors
+* Power pin for encoder - pin5-+3.3V, pin8-GND of P4 connector
+* !!! For stable work without glitch's use optic isolastion for A,B Phase signal
+*/
+#define EXT_ENCODER_A PB8 //!<A Phase of external encoder (OLED_RST-3pin of p7)
+#define EXT_ENCODER_B PB9 //!<B Phase of external encoder (TX1-7pin of p4)
 
 
 #endif //__CONFIG_H_
