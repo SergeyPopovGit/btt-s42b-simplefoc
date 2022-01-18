@@ -1,5 +1,6 @@
-#include <Arduino.h>
+//#define HWSERIAL_NONE
 
+#include <Arduino.h>
 
 #include "config.h" // s42b 2.0 specific details
 #include "StepperMotor.h" //Declare new Stepper motor object befor native SimpleFoc  definition
@@ -23,10 +24,11 @@ ManualControl _mControl = ManualControl() ; //Create handle of encoder hw timer
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
-  Serial.setTx(PA2);  //Set TX port of UART2
-  Serial.setRx(PA3);  //Set RX port of UART2
+  //Serial.setTx(PA2);  //Set TX port of UART2
+  //Serial.setRx(PA3);  //Set RX port of UART2
   Serial.begin(115200);
-  Serial.println("Init begin...");
+  Serial.end();
+  //Serial.println("Init begin...");
   
   command_buffer[0] = 0; //command buffer empty
   commander.add('M', doMotor, "motor");
@@ -44,7 +46,7 @@ void setup() {
 
    //init manual control  
    //set pointer of value for manual control 
-  //_mControl.init(&axis);
+  _mControl.init(&axis);
 
 }
 
@@ -59,6 +61,6 @@ void loop() {
     //run axis loop function
     axis.loop();
     //manual control loop
-   // _mControl.loop();
+    _mControl.loop();
    
 }

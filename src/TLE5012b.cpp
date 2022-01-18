@@ -36,7 +36,7 @@ void TLE5012B::init() {
 
     // Initialize the SPI bus with the parameters we set
     if (HAL_SPI_Init(&spiConfig) != HAL_OK) {
-        Serial.println(F("SPI not initialized!"));
+        //Serial.println(F("SPI not initialized!"));
     }
 
     // Set the chip select pin high, disabling the encoder's communication
